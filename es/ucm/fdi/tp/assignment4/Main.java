@@ -1,4 +1,4 @@
-package es.ucm.fdi.tp.basecode;
+package es.ucm.fdi.tp.assignment4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import es.ucm.fdi.tp.assignment4.ataxx.AtaxxFactory;
 import es.ucm.fdi.tp.basecode.attt.AdvancedTTTFactory;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrl;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrlMVC;
@@ -47,7 +48,8 @@ public class Main {
 	 * Vistas disponibles.
 	 */
 	enum ViewInfo {
-		WINDOW("window", "Swing"), CONSOLE("console", "Console");
+		WINDOW("window", "Swing"),
+		CONSOLE("console", "Console");
 
 		private String id;
 		private String desc;
@@ -77,7 +79,10 @@ public class Main {
 	 * Juegos disponibles.
 	 */
 	enum GameInfo {
-		CONNECTN("cn", "ConnectN"), TicTacToe("ttt", "Tic-Tac-Toe"), AdvancedTicTacToe("attt", "Advanced Tic-Tac-Toe");
+		CONNECTN("cn", "ConnectN"),
+		TicTacToe("ttt", "Tic-Tac-Toe"),
+		AdvancedTicTacToe("attt", "Advanced Tic-Tac-Toe"),
+		Ataxx("ataxx", "Ataxx");
 
 		private String id;
 		private String desc;
@@ -228,6 +233,8 @@ public class Main {
 	 * 
 	 */
 	private static Integer dimCols;
+	
+	private static Integer numObstacles;
 
 	/**
 	 * The algorithm to be used by the automatic player. Not used so far, it is
@@ -269,7 +276,7 @@ public class Main {
 																// --multiviews
 		cmdLineOptions.addOption(constructPlayersOption()); // -p or --players
 		cmdLineOptions.addOption(constructDimensionOption()); // -d or --dim
-
+		cmdLineOptions.addOption(constructObstaclesOption()); // -o or --obstacles
 		// parse the command line as provided in args
 		//
 		CommandLineParser parser = new DefaultParser();
@@ -277,6 +284,7 @@ public class Main {
 			CommandLine line = parser.parse(cmdLineOptions, args);
 			parseHelpOption(line, cmdLineOptions);
 			parseDimOptionn(line);
+			parseObstaclesOptionn(line);
 			parseGameOption(line);
 			parseViewOption(line);
 			parseMultiViewOption(line);
@@ -481,6 +489,13 @@ public class Main {
 		opt.setArgName("game identifier");
 		return opt;
 	}
+	
+	private static Option constructObstaclesOption() {
+		String optionInfo = "Number of obstacles for Ataxx game. By defualt, " + 4 + ".";
+		Option opt = new Option("o", "obstacles", true, optionInfo);
+		opt.setArgName("number of obstacles");
+		return opt;
+	}
 
 	/**
 	 * Parses the game option (-g or --game). It sets the value of
@@ -531,6 +546,19 @@ public class Main {
 			break;
 		case TicTacToe:
 			gameFactory = new TicTacToeFactory();
+			break;
+		case Ataxx:
+			AtaxxFactory ataxxFactory;
+			if (dimRows != null && dimCols != null && dimRows == dimCols) {
+				ataxxFactory = new AtaxxFactory(dimRows);
+			} else {
+				ataxxFactory = new AtaxxFactory();
+			}
+			if (numObstacles != null) {
+				ataxxFactory.setNumberOfObstacles(numObstacles);
+			}
+			
+			gameFactory = ataxxFactory;
 			break;
 		default:
 			throw new UnsupportedOperationException("Something went wrong! This program point should be unreachable!");
@@ -586,6 +614,17 @@ public class Main {
 			}
 		}
 
+	}
+	
+	private static void parseObstaclesOptionn(CommandLine line) throws ParseException {
+		String obsVal = line.getOptionValue("o");
+		if (obsVal != null) {
+			try {
+				numObstacles = Integer.parseInt(obsVal);
+			} catch (NumberFormatException e) {
+				throw new ParseException("Invalid obstacles: " + obsVal);
+			}
+		}
 	}
 
 	/**
@@ -728,7 +767,11 @@ public class Main {
 	 * 
 	 */
 	public static void main(String[] args) {
-		parseArgs(args);
+		String[] argsX = {"-g", "ataxx"};
+		//String[] argsX = {"-g", "ataxx", "-o", "999"};
+		//String[] argsX = {"-g", "ataxx", "-d", "5x5"};
+		//String[] argsX = {"-g", "ataxx", "-d", "5x5", "-p", "W:r,B:m,R:r,Y:r"};
+		parseArgs(argsX);
 		startGame();
 	}
 
