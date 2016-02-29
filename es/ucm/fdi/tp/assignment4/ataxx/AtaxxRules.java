@@ -12,7 +12,7 @@ import es.ucm.fdi.tp.basecode.bgame.model.GameRules;
 import es.ucm.fdi.tp.basecode.bgame.model.Pair;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 
-public class AtaxxRules  implements GameRules {
+public class AtaxxRules implements GameRules {
 	
 	private static final Piece OBSTACLE = new Piece("*");
 	private int dim;
