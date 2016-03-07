@@ -1,5 +1,6 @@
 package es.ucm.fdi.tp.assignment4.ataxx;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import es.ucm.fdi.tp.basecode.bgame.Utils;
@@ -14,6 +15,7 @@ import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 
 public class AtaxxRules implements GameRules {
 	
+    protected final Pair<State, Piece> gameInPlayResult = new Pair<State, Piece>(State.InPlay, null);
 	private static final Piece OBSTACLE = new Piece("*");
 	private int dim;
 	private int obstacles;
@@ -37,21 +39,34 @@ public class AtaxxRules implements GameRules {
 	@Override
 	public Board createBoard(List<Piece> pieces) {
 		Board board = new FiniteRectBoard(dim, dim);
+		
+		for (Piece piece : pieces) {
+		    board.setPieceCount(piece, 0);
+		}
+		
 		if (pieces.size() >= 1) {
 			board.setPosition(0, 0, pieces.get(0));
 			board.setPosition(board.getRows() - 1, board.getCols() - 1, pieces.get(0));
+			
+			board.setPieceCount(pieces.get(0), board.getPieceCount(pieces.get(0)) + 2);
 		}
 		if (pieces.size() >= 2) {
 			board.setPosition(board.getRows() - 1, 0, pieces.get(1));
 			board.setPosition(0, board.getCols() - 1, pieces.get(1));
+			
+			board.setPieceCount(pieces.get(1), board.getPieceCount(pieces.get(1)) + 2);
 		}
 		if (pieces.size() >= 3) {
 			board.setPosition(board.getRows() / 2, 0, pieces.get(2));
 			board.setPosition(board.getRows() / 2,  board.getCols() - 1, pieces.get(2));
+			
+			board.setPieceCount(pieces.get(2), board.getPieceCount(pieces.get(2)) + 2);
 		}
 		if (pieces.size() >= 4) {
 			board.setPosition(0, board.getCols() / 2, pieces.get(3));
 			board.setPosition(board.getRows() - 1, board.getCols() / 2, pieces.get(3));
+			
+			board.setPieceCount(pieces.get(3), board.getPieceCount(pieces.get(3)) + 2);
 		}
 		createObstacles(board, this.obstacles);
 		return board;
@@ -129,15 +144,30 @@ public class AtaxxRules implements GameRules {
 
 	@Override
 	public Pair<State, Piece> updateState(Board board, List<Piece> pieces, Piece turn) {
-		// TODO Auto-generated method stub
-		return null;
+	    if (board.isFull()) {
+	        State state = State.Draw;
+	        Piece winner = null;
+	        int winnerPoints = 0;
+	        for (Piece piece : pieces) {
+	            if (winnerPoints == board.getPieceCount(piece)) {
+	                winner = null;
+	                state = State.Draw;
+	            } else if (winnerPoints < board.getPieceCount(piece)) {
+	                winnerPoints = board.getPieceCount(piece);
+	                winner = piece;
+                    state = State.Won;
+	            }
+	        }
+	        return new Pair<State, Piece>(state, winner);
+	    }
+	    
+	    return gameInPlayResult;
 	}
 
 	@Override
 	public Piece nextPlayer(Board board, List<Piece> pieces, Piece turn) {
 		Piece nt = pieces.get((pieces.indexOf(turn) + 1) % pieces.size());
-		if (turn.equals(AtaxxRules.getObstacle())) {
-			if (nt.equals(turn)) return nt; // Stop infinite recursion!
+		if (validMoves(board, pieces, nt).size() == 0) {
 			nt = nextPlayer(board, pieces, nt);
 		}
 		return nt;
@@ -147,11 +177,32 @@ public class AtaxxRules implements GameRules {
 	public double evaluate(Board board, List<Piece> pieces, Piece turn) {
 		return 0;
 	}
+	
+	private List<GameMove> validMovesFromCoord(Board board, Piece turn, Pair<Integer, Integer> coords) {
+	    List<GameMove> moves = new ArrayList<GameMove>();
+	    for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                if ((coords.getFirst() + i >= 0) && (coords.getFirst() + i < dim) && (coords.getSecond() + j >= 0) && (coords.getSecond() + j < dim)) {
+                    if (board.getPosition(coords.getFirst() + i, coords.getSecond() + j) == null) {
+                        moves.add(new AtaxxMove(coords, new Pair<Integer, Integer>(coords.getFirst() + i, coords.getSecond() + j), turn));
+                    }
+                }
+            }
+        }
+	    return moves;
+	}
 
 	@Override
 	public List<GameMove> validMoves(Board board, List<Piece> playersPieces, Piece turn) {
-		// TODO Auto-generated method stub
-		return null;
+	    List<GameMove> moves = new ArrayList<GameMove>();
+        for (int i = 0; i < board.getRows(); i++) {
+            for (int j = 0; j < board.getCols(); j++) {
+                if ((board.getPosition(i, j) != null) && (board.getPosition(i, j) == turn)) {
+                    moves.addAll(validMovesFromCoord(board, turn, new Pair<Integer, Integer>(i, j)));
+                }
+            }
+        }
+        return moves;
 	}
 	
 	public static Piece getObstacle() {
