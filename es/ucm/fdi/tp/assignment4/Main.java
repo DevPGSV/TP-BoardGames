@@ -142,7 +142,7 @@ public class Main {
 	 * <p>
 	 * Juego por defecto.
 	 */
-	final private static GameInfo DEFAULT_GAME = GameInfo.CONNECTN;
+	final private static GameInfo DEFAULT_GAME = GameInfo.Ataxx;
 
 	/**
 	 * default view to use.
@@ -767,7 +767,8 @@ public class Main {
 	 * 
 	 */
 	public static void main(String[] args) {
-		String[] argsX = {"-g", "ataxx"};
+	    String[] argsX = {};
+		//String[] argsX = {"-g", "ataxx"};
 		//String[] argsX = {"-g", "ataxx", "-o", "999"};
 		//String[] argsX = {"-g", "ataxx", "-d", "5x5"};
 		//String[] argsX = {"-g", "ataxx", "-d", "5x5", "-p", "W:r,B:m,R:r,Y:r"};
