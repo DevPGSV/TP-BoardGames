@@ -13,13 +13,55 @@ import es.ucm.fdi.tp.basecode.bgame.model.GameRules;
 import es.ucm.fdi.tp.basecode.bgame.model.Pair;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 
+/**
+ * <p>Rules for Ataxx game.</p>
+ * <ul>
+ * <li>The game is played on an NxN board (with N>=5 and odd).</li>
+ * <li>The number of players is between 2 and 4.</li>
+ * <li>The player turn in the given order, each moving a piece owned to and empty cell.</li>
+ * <li>A piece can be moved a maximum distance of 2. If the distance is 1, the piece will be duplicated (origin & destination)</li>
+ * <li>After moving a piece, pieces around the destination will be converted to the moved piece type.</li>
+ * <li>When the board is full, the winner is the player with the greatest amount of pieces.</li>
+ * </ul>
+ * 
+ * <p>Reglas para el juego Ataxx.</p>
+ * <ul>
+ * <li>Se juega en un tablero de NxN (con N>=5 y siendo N impar).</li>
+ * <li>El numero de jugadores esta entre 2 y 4.</li>
+ * <li>Los jugadores juegan en el orden proporcionado, moviendo cada uno una pieza de su posesión a una casilla vacía.</li>
+ * <li>Una ficah puede moverse una distacia máxima de 2. Si la distancia es 1, la ficha se duplicará (origen & destino)</li>
+ * <li>Tras mover una ficha, las fichas alrededor del destino serán convertidas al mismo tipo que la ficha movida.</li>
+ * <li>Cuando el tablero está lleno, el ganador es el jugador con mayor número e fichas.</li>
+ * </ul>
+ *
+ */
 public class AtaxxRules implements GameRules {
 	
+    /**
+     * <p>This object is returned by gameOver to indicate that the game is not over. Just to avoid creating it multiple times, etc.</p>
+     */
     protected final Pair<State, Piece> gameInPlayResult = new Pair<State, Piece>(State.InPlay, null);
+	/**
+	 * <p>Static instance of an obstacle to avoid creating it multiple times.</p>
+	 */
 	private static final Piece OBSTACLE = new Piece("*");
+	/**
+	 * <p>Dimensions of the board</p>
+	 */
 	private int dim;
+	/**
+	 * <p>Number of obstacles</p>
+	 */
 	private int obstacles;
 
+	/**
+	 * <p>AtaxxRules constructor</p>
+	 * 
+	 * @param dim
+	 *     <p>Dimensions of the board</p>
+	 * @param obstacles
+	 *     <p>Number of obstacles</p>
+	 */
 	public AtaxxRules(int dim, int obstacles) {
 		if (dim < 5) {
 			throw new GameError("Dimension must be at least 3: " + dim);
@@ -72,8 +114,24 @@ public class AtaxxRules implements GameRules {
 		return board;
 	}
 	
+	/**
+	 * <p>Creates {@code totalObstacles} obstacles randomly in the {@code board}</p>
+	 * @param board
+	 *     <p>Board where obstacles will be created.</p>
+	 * @param totalObstacles
+	 *     <p>Number of obstacles</p>
+	 */
 	private void createObstacles(Board board, int totalObstacles) {
 		int addedObstacles = 0;
+		
+		if (totalObstacles % 4 == 1) {
+		    if (board.getPosition(board.getRows() / 2, board.getCols() / 2) == null) {
+                board.setPosition(board.getRows() / 2, board.getCols() / 2, AtaxxRules.getObstacle());
+                addedObstacles++;
+            }
+		}
+		
+		
 		
 		keepCreatingObstacles:
 		while (addedObstacles < totalObstacles) {
@@ -100,8 +158,17 @@ public class AtaxxRules implements GameRules {
 				break keepCreatingObstacles;
 			}
 		}
+		
 	}
 	
+	/**
+	 * <p>Gets a random empty coordinate of the board.</p>
+	 * 
+	 * @param board
+	 *     <p>Board to be searched.</p>
+	 * @return
+	 *     <p>A random empty coordinate of the board</p>
+	 */
 	private Pair<Integer, Integer> chooseRandomEmptyCoordinate(Board board) {
 		if (board.isFull()) {
 			throw new GameError("The board is full!!");
@@ -178,6 +245,17 @@ public class AtaxxRules implements GameRules {
 		return 0;
 	}
 	
+	/**
+	 * <p>Creates a list of possible moves a piece at some specific coordinates execute.</p>
+	 * @param board
+	 *     <p>Board where the pice to move is.</p>
+	 * @param turn
+	 *     <p>Type of piece to move.</p>
+	 * @param coords
+	 *     <p>Coordinates of the piece.</p>
+	 * @return
+	 *     <p>List of possible moves for the specified piece.</p>
+	 */
 	private List<GameMove> validMovesFromCoord(Board board, Piece turn, Pair<Integer, Integer> coords) {
 	    List<GameMove> moves = new ArrayList<GameMove>();
 	    for (int i = -2; i <= 2; i++) {
@@ -205,6 +283,12 @@ public class AtaxxRules implements GameRules {
         return moves;
 	}
 	
+	/**
+	 * <p>AtaxxRules.OBSTACLE getter</p>
+	 * 
+	 * @return 
+	 *     <p>AtaxxRules.OBSTACLE</p>
+	 */
 	public static Piece getObstacle() {
 		return AtaxxRules.OBSTACLE;
 	}

@@ -19,6 +19,16 @@ import es.ucm.fdi.tp.basecode.bgame.model.Observable;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 import es.ucm.fdi.tp.basecode.bgame.views.GenericConsoleView;
 
+
+/**
+ * A factory for creating Ataxx games. See {@link AtaxxRules} for the
+ * description of the game.
+ * 
+ * 
+ * <p>
+ * Factoria para la creacion de juegos Ataxx. Vease {@link AtaxxRules}
+ * para la descripcion del juego.
+ */
 public class AtaxxFactory implements GameFactory {
 	
 	private int dim;
@@ -36,7 +46,7 @@ public class AtaxxFactory implements GameFactory {
 		} else {
 			this.dim = dim;
 		}
-		this.obstacles = 4;
+		this.obstacles = 16;
 	}
 	
 	public void setNumberOfObstacles(int obstacles) {
@@ -50,12 +60,15 @@ public class AtaxxFactory implements GameFactory {
 
 	@Override
 	public Player createConsolePlayer() {
-	    /*
-	    ArrayList<GameMove> possibleMoves = new ArrayList<GameMove>();
-        possibleMoves.add(new AtaxxMove());
-        return new ConsolePlayer(new Scanner(System.in), possibleMoves);
-        */
-	    return new ConsolePlayerFromListOfMoves(new Scanner(System.in));
+	    String option = System.getenv("Ataxx.use.movementList");
+	    if (option == null) option = "false";
+	    if (option.equalsIgnoreCase("true")) {
+	        return new ConsolePlayerFromListOfMoves(new Scanner(System.in));
+	    } else {
+	        ArrayList<GameMove> possibleMoves = new ArrayList<GameMove>();
+	        possibleMoves.add(new AtaxxMove());
+	        return new ConsolePlayer(new Scanner(System.in), possibleMoves);
+	    }
 	}
 
 	@Override

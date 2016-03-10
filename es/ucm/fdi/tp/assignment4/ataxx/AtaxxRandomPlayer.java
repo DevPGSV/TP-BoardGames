@@ -10,6 +10,12 @@ import es.ucm.fdi.tp.basecode.bgame.model.GameMove;
 import es.ucm.fdi.tp.basecode.bgame.model.GameRules;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 
+/**
+ * <p>A random player for Ataxx.</p>
+ * 
+ * <p>Un jugador aleatorio para Ataxx./<p>
+ *
+ */
 public class AtaxxRandomPlayer extends Player{
 
 	/**
