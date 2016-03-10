@@ -60,7 +60,7 @@ public class AtaxxFactory implements GameFactory {
 
 	@Override
 	public Player createConsolePlayer() {
-	    String option = System.getenv("Ataxx.use.movementList");
+	    String option = System.getenv("Ataxx_use_movementList");
 	    if (option == null) option = "false";
 	    if (option.equalsIgnoreCase("true")) {
 	        return new ConsolePlayerFromListOfMoves(new Scanner(System.in));
