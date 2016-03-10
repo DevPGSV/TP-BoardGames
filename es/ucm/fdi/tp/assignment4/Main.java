@@ -743,12 +743,13 @@ public class Main {
      */
     public static void main(String[] args) {
         //String[] argsX = {};
-        String[] argsX = {"-g", "ataxx"};
+        //String[] argsX = {"-g", "ataxx"};
         //String[] argsX = {"-g", "ataxx", "-o", "999"};
         //String[] argsX = {"-g", "ataxx", "-o", "16"};
         //String[] argsX = {"-g", "ataxx", "-d", "5x5"};
         //String[] argsX = {"-g", "ataxx", "-d", "5x5", "-p", "W:r,B:m,R:r,Y:r"};
-        parseArgs(argsX);
+        //parseArgs(argsX);
+        parseArgs(args);
         startGame();
     }
 
