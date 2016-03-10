@@ -111,6 +111,10 @@ public class AtaxxRules implements GameRules {
 			board.setPieceCount(pieces.get(3), board.getPieceCount(pieces.get(3)) + 2);
 		}
 		createObstacles(board, this.obstacles);
+		
+		if (validMoves(board, pieces, initialPlayer(board, pieces)).size() == 0) { // Avoid being stuck on first turn if first player cannot move (ie. filling the board with obstacles)
+		    board.setPosition(1, 1, null);
+		}
 		return board;
 	}
 	
@@ -130,8 +134,6 @@ public class AtaxxRules implements GameRules {
                 addedObstacles++;
             }
 		}
-		
-		
 		
 		keepCreatingObstacles:
 		while (addedObstacles < totalObstacles) {
@@ -211,7 +213,12 @@ public class AtaxxRules implements GameRules {
 
 	@Override
 	public Pair<State, Piece> updateState(Board board, List<Piece> pieces, Piece turn) {
-	    if (board.isFull()) {
+	    int totalMoves = 0;
+	    for (Piece piece : pieces) {
+	        totalMoves += validMoves(board, pieces, piece).size();
+	    }
+	    
+	    if (board.isFull() || totalMoves == 0) {
 	        State state = State.Draw;
 	        Piece winner = null;
 	        int winnerPoints = 0;
