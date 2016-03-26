@@ -94,16 +94,14 @@ public class AtaxxMove extends GameMove{
      *            <p>Coordinates around which pieces will be changed</p>
      *            <p>Coordenadas alrededor de las cuales realizar el cambio</p>
      */
-    private void eatPiecesAroundCoords(Board board, Pair<Integer, Integer> coords) {
+    private void eatPiecesAroundCoords(Board board, Pair<Integer, Integer> coords, List<Piece> pieces) {
         Piece tmpPiece;
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if ((coords.getFirst() + i >= 0) && (coords.getFirst() + i < board.getRows()) && (coords.getSecond() + j >= 0) && (coords.getSecond() + j < board.getCols())) {
                     tmpPiece = board.getPosition(coords.getFirst() + i, coords.getSecond() + j);
-                    if ((tmpPiece != null) && (tmpPiece != getPiece()) && (tmpPiece != AtaxxRules.getObstacle())) {
+                    if (!getPiece().equals(tmpPiece) && pieces.contains(tmpPiece)) {
                         board.setPosition(coords.getFirst() + i, coords.getSecond() + j, getPiece());
-                        board.setPieceCount(getPiece(), board.getPieceCount(getPiece()) + 1);
-                        board.setPieceCount(tmpPiece, board.getPieceCount(tmpPiece) - 1);
                     }
                 }
             }
@@ -112,22 +110,18 @@ public class AtaxxMove extends GameMove{
     
     @Override
 	public void execute(Board board, List<Piece> pieces) {
-        //System.out.println(board.getPieceCount(getPiece()));
-        if (board.getPosition(this.origin.getFirst(), this.origin.getSecond()) != getPiece()) {
+        if (!board.getPosition(this.origin.getFirst(), this.origin.getSecond()).equals(getPiece())) {
             throw new GameError("You don't own a piece in (" + this.origin.getFirst() + ", " + this.origin.getSecond() + ")!");
         } else if (board.getPosition(this.destination.getFirst(), this.destination.getSecond()) != null) {
             throw new GameError("position (" + this.destination.getFirst() + ", " + this.destination.getSecond() + ") is already occupied!");
         } else if (getMovementDistanceRadius(this.origin, this.destination) > 2) {
             throw new GameError("You can't yump " + getMovementDistanceRadius(this.origin, this.destination) + " cells! Maximum is 2");
         }
-        
 		board.setPosition(this.destination.getFirst(), this.destination.getSecond(), getPiece());
-		board.setPieceCount(getPiece(), board.getPieceCount(getPiece()) + 1);
 		if (getMovementDistanceRadius(this.origin, this.destination) == 2) {
 		    board.setPosition(this.origin.getFirst(), this.origin.getSecond(), null);
-		    board.setPieceCount(getPiece(), board.getPieceCount(getPiece()) - 1);
 		}
-		eatPiecesAroundCoords(board, this.destination);
+		eatPiecesAroundCoords(board, this.destination, pieces);
 	}
 
     /**

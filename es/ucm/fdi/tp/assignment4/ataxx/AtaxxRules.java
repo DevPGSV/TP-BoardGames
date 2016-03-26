@@ -1,7 +1,9 @@
 package es.ucm.fdi.tp.assignment4.ataxx;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import es.ucm.fdi.tp.basecode.bgame.Utils;
 import es.ucm.fdi.tp.basecode.bgame.model.Board;
@@ -44,7 +46,7 @@ public class AtaxxRules implements GameRules {
 	/**
 	 * <p>Static instance of an obstacle to avoid creating it multiple times.</p>
 	 */
-	private static final Piece OBSTACLE = new Piece("*");
+	private Piece obstaclePiece = null; // Unnecessary to make it equal to null. Done just for clarity. 
 	/**
 	 * <p>Dimensions of the board</p>
 	 */
@@ -82,39 +84,24 @@ public class AtaxxRules implements GameRules {
 	public Board createBoard(List<Piece> pieces) {
 		Board board = new FiniteRectBoard(dim, dim);
 		
-		for (Piece piece : pieces) {
-		    board.setPieceCount(piece, 0);
-		}
-		
 		if (pieces.size() >= 1) {
 			board.setPosition(0, 0, pieces.get(0));
 			board.setPosition(board.getRows() - 1, board.getCols() - 1, pieces.get(0));
-			
-			board.setPieceCount(pieces.get(0), board.getPieceCount(pieces.get(0)) + 2);
 		}
 		if (pieces.size() >= 2) {
 			board.setPosition(board.getRows() - 1, 0, pieces.get(1));
 			board.setPosition(0, board.getCols() - 1, pieces.get(1));
-			
-			board.setPieceCount(pieces.get(1), board.getPieceCount(pieces.get(1)) + 2);
 		}
 		if (pieces.size() >= 3) {
 			board.setPosition(board.getRows() / 2, 0, pieces.get(2));
 			board.setPosition(board.getRows() / 2,  board.getCols() - 1, pieces.get(2));
-			
-			board.setPieceCount(pieces.get(2), board.getPieceCount(pieces.get(2)) + 2);
 		}
 		if (pieces.size() >= 4) {
 			board.setPosition(0, board.getCols() / 2, pieces.get(3));
 			board.setPosition(board.getRows() - 1, board.getCols() / 2, pieces.get(3));
-			
-			board.setPieceCount(pieces.get(3), board.getPieceCount(pieces.get(3)) + 2);
 		}
-		createObstacles(board, this.obstacles);
+		createObstacles(board, this.obstacles, pieces);
 		
-		if (validMoves(board, pieces, initialPlayer(board, pieces)).size() == 0) { // Avoid being stuck on first turn if first player cannot move (ie. filling the board with obstacles)
-		    board.setPosition(1, 1, null);
-		}
 		return board;
 	}
 	
@@ -124,37 +111,43 @@ public class AtaxxRules implements GameRules {
 	 *     <p>Board where obstacles will be created.</p>
 	 * @param totalObstacles
 	 *     <p>Number of obstacles</p>
+	 * @param pieces 
 	 */
-	private void createObstacles(Board board, int totalObstacles) {
+	private void createObstacles(Board board, int totalObstacles, List<Piece> pieces) {
 		int addedObstacles = 0;
-		
-		if (totalObstacles % 4 == 1) {
-		    if (board.getPosition(board.getRows() / 2, board.getCols() / 2) == null) {
-                board.setPosition(board.getRows() / 2, board.getCols() / 2, AtaxxRules.getObstacle());
-                addedObstacles++;
-            }
-		}
+		totalObstacles = Math.min(totalObstacles, board.getRows() * board.getCols() * 20 / 100); // If the number of obstacles is greater than 10% of the board, lower it to 20% of the board.
 		
 		keepCreatingObstacles:
 		while (addedObstacles < totalObstacles) {
 			try {
 				Pair<Integer, Integer> coord = chooseRandomEmptyCoordinate(board);
-				
 				if ((addedObstacles < totalObstacles) && (board.getPosition(coord.getFirst(), coord.getSecond()) == null)) {
-					board.setPosition(coord.getFirst(), coord.getSecond(), AtaxxRules.getObstacle());
-					addedObstacles++;
-				}
-				if ((addedObstacles < totalObstacles) && (board.getPosition(board.getRows() - coord.getFirst() - 1, coord.getSecond()) == null)) {
-					board.setPosition(board.getRows() - coord.getFirst() - 1, coord.getSecond(), AtaxxRules.getObstacle());
-					addedObstacles++;
-				}
-				if ((addedObstacles < totalObstacles) && (board.getPosition(coord.getFirst(), board.getCols() - coord.getSecond() - 1) == null)) {
-					board.setPosition(coord.getFirst(), board.getCols() - coord.getSecond() - 1, AtaxxRules.getObstacle());
-					addedObstacles++;
-				}
-				if ((addedObstacles < totalObstacles) && (board.getPosition(board.getRows() - coord.getFirst() - 1, board.getCols() - coord.getSecond() - 1) == null)) {
-					board.setPosition(board.getRows() - coord.getFirst() - 1, board.getCols() - coord.getSecond() - 1, AtaxxRules.getObstacle());
-					addedObstacles++;
+				    if ((coord.getFirst() == (board.getRows() / 2)) && (coord.getSecond() == (board.getCols() / 2))) {
+				        board.setPosition(coord.getFirst(), coord.getSecond(), getObstacle(pieces));
+				        addedObstacles++;
+				    } else {
+				        int d = -1;
+				        if (coord.getFirst() == (board.getRows() / 2)) {
+                            d = coord.getSecond();
+                        } else if (coord.getSecond() == (board.getCols() / 2)) {
+                            d = coord.getFirst();
+                        }
+	                        
+	                    if (d != -1) {
+	                        board.setPosition(board.getRows() / 2, d, getObstacle(pieces));
+	                        board.setPosition(board.getRows() / 2, board.getCols() - d - 1, getObstacle(pieces));
+	                        
+	                        board.setPosition(d, board.getCols() / 2, getObstacle(pieces));
+	                        board.setPosition(board.getRows() - d - 1, board.getCols() / 2, getObstacle(pieces));
+	                        addedObstacles += 4;
+	                    } else {
+    				        board.setPosition(coord.getFirst(), coord.getSecond(), getObstacle(pieces));
+    	                    board.setPosition(board.getRows() - coord.getFirst() - 1, coord.getSecond(), getObstacle(pieces));
+    	                    board.setPosition(coord.getFirst(), board.getCols() - coord.getSecond() - 1, getObstacle(pieces));
+    	                    board.setPosition(board.getRows() - coord.getFirst() - 1, board.getCols() - coord.getSecond() - 1, getObstacle(pieces));
+    	                    addedObstacles += 4;
+	                    }
+				    }
 				}
 			} catch (GameError e) {
 				break keepCreatingObstacles;
@@ -198,7 +191,7 @@ public class AtaxxRules implements GameRules {
 
 	@Override
 	public Piece initialPlayer(Board board, List<Piece> pieces) {
-		return pieces.get(0);
+	    return nextPlayer(board, pieces, pieces.get(pieces.size() - 1)); // The first player is the player next to the last one
 	}
 
 	@Override
@@ -210,46 +203,120 @@ public class AtaxxRules implements GameRules {
 	public int maxPlayers() {
 		return 4;
 	}
+	
+	private Map<Piece, Integer> countPieces(Board board, List<Piece> pieces) {
+	    Map<Piece, Integer> count = new HashMap<Piece, Integer>();
+	    Piece piece;
+	    for (int i = 0; i < board.getRows(); i++) {
+            for (int j = 0; j < board.getCols(); j++) {
+                piece = board.getPosition(i, j);
+                if (!getObstacle(pieces).equals(piece)) {
+                    if (!count.containsKey(piece)) {
+                        count.put(piece, 0);
+                    }
+                    count.put(piece, count.get(piece) + 1);
+                }
+            }
+	    }
+	    
+        return count;
+	}
 
 	@Override
 	public Pair<State, Piece> updateState(Board board, List<Piece> pieces, Piece turn) {
-	    int totalMoves = 0;
-	    for (Piece piece : pieces) {
-	        totalMoves += validMoves(board, pieces, piece).size();
-	    }
 	    
-	    if (board.isFull() || totalMoves == 0) {
+	    if (board.isFull() ) { // || (nextPlayer(board, pieces, turn) == null) 
+	        Map<Piece, Integer> count = countPieces(board, pieces);
 	        State state = State.Draw;
 	        Piece winner = null;
 	        int winnerPoints = 0;
 	        for (Piece piece : pieces) {
-	            if (winnerPoints == board.getPieceCount(piece)) {
+	            if (winnerPoints == count.get(piece)) {
 	                winner = null;
 	                state = State.Draw;
-	            } else if (winnerPoints < board.getPieceCount(piece)) {
-	                winnerPoints = board.getPieceCount(piece);
+	            } else if (winnerPoints < count.get(piece)) {
+	                winnerPoints = count.get(piece);
 	                winner = piece;
                     state = State.Won;
 	            }
 	        }
 	        return new Pair<State, Piece>(state, winner);
 	    }
-	    
 	    return gameInPlayResult;
 	}
 
 	@Override
 	public Piece nextPlayer(Board board, List<Piece> pieces, Piece turn) {
 		Piece nt = pieces.get((pieces.indexOf(turn) + 1) % pieces.size());
-		if (validMoves(board, pieces, nt).size() == 0) {
-			nt = nextPlayer(board, pieces, nt);
+		while (!canMove(board, pieces, nt)) {
+		    nt = pieces.get((pieces.indexOf(nt) + 1) % pieces.size());
+		    if (nt.equals(turn)) {
+		        return null; // No one can move
+		    }
 		}
 		return nt;
 	}
 
 	@Override
 	public double evaluate(Board board, List<Piece> pieces, Piece turn) {
-		return 0;
+	    
+	    Map<Piece, Integer> count = countPieces(board, pieces);
+        State state = State.Draw;
+        Piece winner = null;
+        int winnerPoints = 0;
+        for (Piece piece : pieces) {
+            if (winnerPoints == count.get(piece)) {
+                winner = null;
+                state = State.Draw;
+            } else if (winnerPoints < count.get(piece)) {
+                winnerPoints = count.get(piece);
+                winner = piece;
+                state = State.Won;
+            }
+        }
+        
+        if (state.equals(State.Draw)) {
+            return 0;
+        } else if (winner.equals(turn)) {
+            return 1;
+        } else {
+            return -1;
+        }
+        
+	    // return 0;
+	}
+	
+	/**
+	 * <p>Checks if the player can make a move</p>
+	 * 
+	 * @param board
+     *     <p>Board where is has to be checked if the player can move.</p>
+     * @param playersPieces
+     *     <p>List of piece types</p>
+     * @param turn
+     *     <p>Type of piece to move.</p>
+     * @return
+     *     <p>If the player can make a move.</p>
+     */
+	private boolean canMove(Board board, List<Piece> playersPieces, Piece turn) { // returns as soon as it knows the player can move
+	    Pair<Integer, Integer> coords;
+	    for (int i = 0; i < board.getRows(); i++) {
+            for (int j = 0; j < board.getCols(); j++) {
+                if ((board.getPosition(i, j) != null) && (board.getPosition(i, j).equals(turn))) {
+                    coords = new Pair<Integer, Integer>(i, j);
+                    for (int k = -2; k <= 2; k++) {
+                        for (int w = -2; w <= 2; w++) {
+                            if ((coords.getFirst() + k >= 0) && (coords.getFirst() + k < dim) && (coords.getSecond() + w >= 0) && (coords.getSecond() + w < dim)) {
+                                if (board.getPosition(coords.getFirst() + k, coords.getSecond() + w) == null) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+	    return false;
 	}
 	
 	/**
@@ -282,7 +349,7 @@ public class AtaxxRules implements GameRules {
 	    List<GameMove> moves = new ArrayList<GameMove>();
         for (int i = 0; i < board.getRows(); i++) {
             for (int j = 0; j < board.getCols(); j++) {
-                if ((board.getPosition(i, j) != null) && (board.getPosition(i, j) == turn)) {
+                if ((board.getPosition(i, j) != null) && (board.getPosition(i, j).equals(turn))) {
                     moves.addAll(validMovesFromCoord(board, turn, new Pair<Integer, Integer>(i, j)));
                 }
             }
@@ -291,13 +358,21 @@ public class AtaxxRules implements GameRules {
 	}
 	
 	/**
-	 * <p>AtaxxRules.OBSTACLE getter</p>
+	 * <p>obstaclePiece getter</p>
 	 * 
 	 * @return 
-	 *     <p>AtaxxRules.OBSTACLE</p>
+	 *     <p>obstaclePiece</p>
 	 */
-	public static Piece getObstacle() {
-		return AtaxxRules.OBSTACLE;
+	public Piece getObstacle(List<Piece> l) {
+        int i=0;
+        while (this.obstaclePiece == null) {
+	        Piece o = new Piece("*#"+i);
+	        if ( !l.contains(o) ) {
+	            this.obstaclePiece = o;
+	        }
+            i++;
+        }
+		return this.obstaclePiece;
 	}
 
 }

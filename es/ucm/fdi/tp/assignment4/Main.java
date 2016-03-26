@@ -526,12 +526,17 @@ public class Main {
         case Ataxx:
             AtaxxFactory ataxxFactory;
             if (dimRows != null && dimCols != null && dimRows == dimCols) {
-                ataxxFactory = new AtaxxFactory(dimRows);
+                if (numObstacles == null) {
+                    ataxxFactory = new AtaxxFactory(dimRows, true);
+                } else {
+                    ataxxFactory = new AtaxxFactory(dimRows, numObstacles);
+                }
             } else {
-                ataxxFactory = new AtaxxFactory();
-            }
-            if (numObstacles != null) {
-                ataxxFactory.setNumberOfObstacles(numObstacles);
+                if (numObstacles != null) {
+                    ataxxFactory = new AtaxxFactory(true, numObstacles);
+                } else {
+                    ataxxFactory = new AtaxxFactory(true, true);
+                }
             }
             
             gameFactory = ataxxFactory;
@@ -742,13 +747,6 @@ public class Main {
      * 
      */
     public static void main(String[] args) {
-        //String[] argsX = {};
-        //String[] argsX = {"-g", "ataxx"};
-        //String[] argsX = {"-g", "ataxx", "-o", "999"};
-        //String[] argsX = {"-g", "ataxx", "-o", "16"};
-        //String[] argsX = {"-g", "ataxx", "-d", "5x5"};
-        //String[] argsX = {"-g", "ataxx", "-d", "5x5", "-p", "W:r,B:m,R:r,Y:r"};
-        //parseArgs(argsX);
         parseArgs(args);
         startGame();
     }

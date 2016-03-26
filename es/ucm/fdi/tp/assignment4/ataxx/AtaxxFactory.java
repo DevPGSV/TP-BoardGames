@@ -35,10 +35,22 @@ public class AtaxxFactory implements GameFactory {
 	private int obstacles;
 
 	public AtaxxFactory() {
-		this(7);
-	}
+        this(7, 4);
+    }
+	
+	public AtaxxFactory(boolean dummyDim, boolean dummyObstacles) {
+        this();
+    }
+	
+	public AtaxxFactory(int dim, boolean dummyObstacles) {
+        this(dim, 4);
+    }
+	
+	public AtaxxFactory(boolean dummyDim, int obstacles) {
+        this(7, obstacles);
+    }
 
-	public AtaxxFactory(int dim) {
+	public AtaxxFactory(int dim, int obstacles) {
 		if (dim < 5) {
 			throw new GameError("Dimension must be at least 3: " + dim);
 		} else if (dim % 2 == 0) {
@@ -46,10 +58,6 @@ public class AtaxxFactory implements GameFactory {
 		} else {
 			this.dim = dim;
 		}
-		this.obstacles = 16;
-	}
-	
-	public void setNumberOfObstacles(int obstacles) {
 		this.obstacles = obstacles;
 	}
 
@@ -86,8 +94,6 @@ public class AtaxxFactory implements GameFactory {
 		List<Piece> pieces = new ArrayList<Piece>();
 		pieces.add(new Piece("X"));
 		pieces.add(new Piece("O"));
-		pieces.add(new Piece("R"));
-		pieces.add(new Piece("B"));
 		return pieces;
 	}
 

@@ -29,7 +29,7 @@ public class AtaxxRandomPlayer extends Player{
             throw new GameError("The board is full, cannot make a random move!!");
         }
 	    List<GameMove> availableMoves = rules.validMoves(board, pieces, p);
-	    if (availableMoves.size() == 0) {
+	    if (availableMoves.isEmpty()) {
 	        throw new GameError("Nothing to move!!");
 	    }
 		return availableMoves.get(Utils.randomInt(availableMoves.size()));
