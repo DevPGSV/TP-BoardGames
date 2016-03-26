@@ -204,6 +204,16 @@ public class AtaxxRules implements GameRules {
 		return 4;
 	}
 	
+	/**
+	 * <p>Count the pieces of all players</p>
+	 * 
+	 * @param board
+	 *     <p>Board to be searched.</p>
+	 * @param pieces
+	 *     <p>list of pieces</p>
+	 * @return
+	 *     <p>Map containing the numbers of pieces for each player</p>
+	 */
 	private Map<Piece, Integer> countPieces(Board board, List<Piece> pieces) {
 	    Map<Piece, Integer> count = new HashMap<Piece, Integer>();
 	    Piece piece;
@@ -259,7 +269,7 @@ public class AtaxxRules implements GameRules {
 
 	@Override
 	public double evaluate(Board board, List<Piece> pieces, Piece turn) {
-	    
+	    /*
 	    Map<Piece, Integer> count = countPieces(board, pieces);
         State state = State.Draw;
         Piece winner = null;
@@ -282,8 +292,8 @@ public class AtaxxRules implements GameRules {
         } else {
             return -1;
         }
-        
-	    // return 0;
+        */
+	    return 0;
 	}
 	
 	/**
