@@ -217,13 +217,12 @@ public class AtaxxRules implements GameRules {
 	private Map<Piece, Integer> countPieces(Board board, List<Piece> pieces) {
 	    Map<Piece, Integer> count = new HashMap<Piece, Integer>();
 	    Piece piece;
+	    for(Piece tmpPiece : pieces)
+	        count.put(tmpPiece, 0);
 	    for (int i = 0; i < board.getRows(); i++) {
             for (int j = 0; j < board.getCols(); j++) {
                 piece = board.getPosition(i, j);
-                if (!getObstacle(pieces).equals(piece)) {
-                    if (!count.containsKey(piece)) {
-                        count.put(piece, 0);
-                    }
+                if (count.containsKey(piece)) {
                     count.put(piece, count.get(piece) + 1);
                 }
             }
@@ -234,9 +233,13 @@ public class AtaxxRules implements GameRules {
 
 	@Override
 	public Pair<State, Piece> updateState(Board board, List<Piece> pieces, Piece turn) {
+	    Map<Piece, Integer> count = countPieces(board, pieces);
+	    int playersLeft = 0;
+	    for(Piece piece : pieces)
+	        if (count.get(piece).intValue() != 0)
+	            playersLeft++;
 	    
-	    if (board.isFull() ) { // || (nextPlayer(board, pieces, turn) == null) 
-	        Map<Piece, Integer> count = countPieces(board, pieces);
+	    if ((playersLeft <= 1) || board.isFull() || (nextPlayer(board, pieces, turn) == null) ) { 
 	        State state = State.Draw;
 	        Piece winner = null;
 	        int winnerPoints = 0;
