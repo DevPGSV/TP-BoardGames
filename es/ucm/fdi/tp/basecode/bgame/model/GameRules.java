@@ -15,7 +15,7 @@ import java.util.List;
  * <li>Select the player to player next.</li>
  * <li>Evaluate how close is a given piece to win the game (for automatic
  * players).</li>
- * <li>Generate a list of valid moves (for automatic players mainly).</li>
+ * <li>Generate a list of valid moves for a given player (for automatic players mainly).</li>
  * </ul>
  * 
  * <p>
@@ -32,7 +32,7 @@ import java.util.List;
  * <li>Seleccionar el jugador que juega a continuacion.</li>
  * <li>Evaluar la proximidad de una ficha a un fin de juego ganador (para
  * jugadores automaticos).</li>
- * <li>Generar una lista de movimientos validos (principalmente para jugadores
+ * <li>Generar una lista de movimientos validos para una ficha (principalmente para jugadores
  * automaticos).</li>
  * </ul>
  * 
@@ -182,13 +182,17 @@ public interface GameRules {
 	public Piece nextPlayer(Board board, List<Piece> pieces, Piece turn);
 
 	/**
-	 * Evaluates how close the player {@link turn} is to winning (1) or losing
+	 * Evaluates how close the player {@link p} is to winning (1) or losing
 	 * (-1). To be used in the automatic players. This method should at least
 	 * return the neutral value (0) if there is no actual underlying algorithm
 	 * that evaluates.
 	 * 
 	 * <p>
-	 * Evalua la proximidad del jugador que juega con la ficha {@link turn} de
+	 * The method must be called with a board that is InPlay, it cannot be
+	 * called with a finished game.
+	 * 
+	 * <p>
+	 * Evalua la proximidad del jugador que juega con la ficha {@link p} de
 	 * ganar (1) o de perder (-1). Debe usarse para implementar estrategias de
 	 * IA. Al menos, si no hay ningun algoritmo de evaluacion del movimiento,
 	 * debe devolver el valor neutral 0.
@@ -207,6 +211,11 @@ public interface GameRules {
 	 *            The piece to be played next.
 	 *            <p>
 	 *            La ficha del siguiente jugador, según las reglas del juego.
+	 * @param p
+	 *            The piece w.r.t which we want to make the evaluation
+	 *            <p>
+	 *            La ficha a la que corresponde la evaluacion.
+	 * 
 	 * @return How close the player {@link turn} is to winning (1) or losing
 	 *         (-1). The value 0 is neutral.
 	 *         <p>
@@ -214,21 +223,21 @@ public interface GameRules {
 	 *         {@link turn} de ganar (1) o de perder (-1). El valor 0 es
 	 *         neutral.
 	 */
-	public double evaluate(Board board, List<Piece> pieces, Piece turn);
+	public double evaluate(Board board, List<Piece> pieces, Piece turn, Piece p);
 
 	/**
-	 * Generates a list of valid moves, or {@code null} if this operation is not
-	 * supported.
+	 * Generates a list of valid moves for a give piece, or {@code null} if this
+	 * operation is not supported.
 	 * 
 	 * <p>
-	 * Genera una lista de movimientos validos o {@code null} si no se permite
-	 * esta operacion.
+	 * Genera una lista de movimientos validos para una ficha o {@code null} si
+	 * no se permite esta operacion.
 	 * 
 	 * @param board
 	 *            The current board of the game.
 	 *            <p>
 	 *            El tablero actual.
-	 * @param playersPieces
+	 * @param pieces
 	 *            The list of pieces involved in the game (each correspond to a
 	 *            player).
 	 *            <p>
@@ -236,19 +245,20 @@ public interface GameRules {
 	 *            corresponde a un jugador).
 	 * 
 	 * @param turn
-	 *            The piece that has been played last.
+	 *            The piece for which we want to generate the valid moves.
 	 *            <p>
-	 *            Ficha que ha jugado en el ultimo movimiento.
+	 *            La ficha para el que queremos generar los movimientos validos.
 	 * @return A list of instances of a subclass of {@link GameMove} that
-	 *         represent all valid move, or {@code null} if this operation is
-	 *         not supported. The actual class depends on the actual
-	 *         implementation of {@link GameRules}.
+	 *         represent all valid move for{@code turn}, or {@code null} if this
+	 *         operation is not supported. The actual class depends on the
+	 *         actual implementation of {@link GameRules}.
 	 * 
 	 *         <p>
 	 *         Lista de objetos de una subclase de {@link GameMove} que
-	 *         representa todos los movimientos validos, o {@code null} si no se
-	 *         permite esta operacion. La clase concreta dependerá de la
-	 *         implementación de {@link GameRules} que corresponda.
+	 *         representa todos los movimientos validos para la ficha
+	 *         {@code turn}, o {@code null} si no se permite esta operacion. La
+	 *         clase concreta dependerá de la implementación de
+	 *         {@link GameRules} que corresponda.
 	 */
-	public List<GameMove> validMoves(Board board, List<Piece> playersPieces, Piece turn);
+	public List<GameMove> validMoves(Board board, List<Piece> pieces, Piece turn);
 }

@@ -1,12 +1,12 @@
 package es.ucm.fdi.tp.basecode.attt;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import es.ucm.fdi.tp.basecode.bgame.model.Board;
 import es.ucm.fdi.tp.basecode.bgame.model.FiniteRectBoard;
-import es.ucm.fdi.tp.basecode.bgame.model.Pair;
+import es.ucm.fdi.tp.basecode.bgame.model.GameMove;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
-import es.ucm.fdi.tp.basecode.bgame.model.Game.State;
 import es.ucm.fdi.tp.basecode.ttt.TicTacToeRules;
 
 /**
@@ -26,39 +26,42 @@ public class AdvancedTTTRules extends TicTacToeRules {
 	@Override
 	public Board createBoard(List<Piece> playersPieces) {
 		Board b = new FiniteRectBoard(3, 3);
-		for (Piece p : playersPieces) {
-			b.setPieceCount(p, 3);
-		}
+		b.setPieceCount(playersPieces.get(0), 3);
+		b.setPieceCount(playersPieces.get(1), 3);
 		return b;
 	}
 
 	@Override
-	public Piece nextPlayer(Board board, List<Piece> playersPieces, Piece lastPlayer) {
-		List<Piece> pieces = playersPieces;
-		int numPieces = pieces.size();
+	public List<GameMove> validMoves(Board board, List<Piece> playersPieces, Piece turn) {
+		List<GameMove> moves = new ArrayList<GameMove>();
 
-		int i = pieces.indexOf(lastPlayer);
-		int j = (i + 1) % numPieces;
-		while (i != j && board.getPieceCount(pieces.get(j)) == 0) {
-			j = (j + 1) % numPieces;
-		}
-		if (j != i) {
-			return pieces.get(j);
+		if ( board.getPieceCount(turn) > 0) {
+			for (int i = 0; i < board.getRows(); i++) {
+				for (int j = 0; j < board.getCols(); j++) {
+					if (board.getPosition(i, j) == null) {
+						moves.add(new AdvancedTTTMove(-1, -1, i, j, turn));
+					}
+				}
+			}
 		} else {
-			return null;
+			// note: could be made more efficient,
+			// but on 3x3 board, max inner loops is ~ 3x9 = 27; not worth it
+			for (int i = 0; i < board.getRows(); i++) {
+				for (int j = 0; j < board.getCols(); j++) {
+					if (board.getPosition(i, j) == turn) {
+						for (int x = 0; x < board.getRows(); x++) {
+							for (int y = 0; y < board.getCols(); y++) {
+								if (board.getPosition(x, y) == null) {
+									moves.add(new AdvancedTTTMove(
+											i, j, x, y,	turn));
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-	}
-
-	@Override
-	public Pair<State, Piece> updateState(Board board, List<Piece> playersPieces, Piece lastPlayer) {
-		Pair<State, Piece> r = super.updateState(board, playersPieces, lastPlayer);
-
-		// draw if no one has more pieces
-		if (r.getFirst() == State.InPlay && nextPlayer(board, playersPieces, lastPlayer) == null) {
-			return new Pair<State, Piece>(State.Draw, null);
-		} else {
-			return r;
-		}
+		return moves;
 	}
 
 }

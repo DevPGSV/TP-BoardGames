@@ -18,7 +18,7 @@ import es.ucm.fdi.tp.basecode.bgame.model.Piece;
  * necesarios para crear los objetos que intervienen en un juego. Esto
  * simplifica el proceso de añadir nuevos juegos en la aplicacion.
  */
-public interface GameFactory {
+public interface GameFactory extends java.io.Serializable {
 
 	/**
 	 * Creates the rules for the game for the game implementing this interface.
@@ -31,7 +31,7 @@ public interface GameFactory {
 	 *         Un objeto de una subclase de {@link GameRules} que contiene las
 	 *         reglas de este juego.
 	 */
-	public abstract GameRules gameRules();
+	 GameRules gameRules();
 
 	/**
 	 * Creates a console player for the game implementing this interface.
@@ -44,7 +44,7 @@ public interface GameFactory {
 	 *         <p>
 	 *         Un nuevo objeto {@link Player} para este juego.
 	 */
-	public abstract Player createConsolePlayer();
+	Player createConsolePlayer();
 
 	/**
 	 * Creates a random player for the game implementing this interface. A
@@ -60,25 +60,28 @@ public interface GameFactory {
 	 *         <p>
 	 *         Un nuevo objeto {@link Player} que representa el jugador.
 	 */
-	public abstract Player createRandomPlayer();
+	Player createRandomPlayer();
 
 	/**
-	 * Creates an AIm player for the game implementing this interface. An AI is
-	 * one that used typically uses the algorithm {@link alg} to automatically
-	 * decide which move to make.
+	 * Creates an AI player for the game implementing this interface. The
+	 * AI will use the specified algorithm to decide on a move.
 	 *
 	 * <p>
-	 * Crea un jugador automático para el juego que implementa este interface.
-	 * Un jugador AI es un jugador que normalmente utiliza el algoritmo
-	 * {@link alg} para decidir automaticamente el movimiento a realizar.
-	 * 
+	 * Crea un jugador inteligente que usará el algoritmo especificado
+	 * para elegir sus movimientos.
+     *
+	 * @param alg
+	 *            The AI algorithm to use.
+	 *            <p>
+	 *            El algoritmo de IA que se usará.
+	 *
 	 * 
 	 * @return A {@link Player} that represents an AI player.
 	 * 
 	 *         <p>
 	 *         Un nuevo objeto {@link Player} para este juego.
 	 */
-	public abstract Player createAIPlayer(AIAlgorithm alg);
+	Player createAIPlayer(AIAlgorithm alg);
 
 	/**
 	 * Creates the default list of pieces (to be used when the user does not
@@ -89,7 +92,7 @@ public interface GameFactory {
 	 * lista de jugadores).
 	 * 
 	 */
-	public abstract List<Piece> createDefaultPieces();
+	List<Piece> createDefaultPieces();
 
 	/**
 	 * Creates a corresponding console view and connect it to game reference by
@@ -110,7 +113,7 @@ public interface GameFactory {
 	 *            El controlador del juego.
 	 * 
 	 */
-	public void createConsoleView(Observable<GameObserver> game, Controller ctrl);
+	void createConsoleView(Observable<GameObserver> game, Controller ctrl);
 
 	/**
 	 * Creates a Swing view and connects it to game reference by {@code game}
@@ -162,6 +165,6 @@ public interface GameFactory {
 	 *            IA (automaticos).
 	 * 
 	 */
-	public void createSwingView(final Observable<GameObserver> game, final Controller ctrl, final Piece viewPiece,
+	void createSwingView(final Observable<GameObserver> game, final Controller ctrl, final Piece viewPiece,
 			Player randPlayer, Player aiPlayer);
 }

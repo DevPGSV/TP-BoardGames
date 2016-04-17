@@ -1,6 +1,6 @@
 package es.ucm.fdi.tp.basecode.ttt;
 
-import es.ucm.fdi.tp.basecode.connectN.ConnectNRules;
+import es.ucm.fdi.tp.basecode.connectn.ConnectNRules;
 
 /**
  * Tic-Tac-Toe game rules. It is the same as ConnectN, except that the board has
@@ -19,7 +19,7 @@ public class TicTacToeRules extends ConnectNRules {
 
 	@Override
 	public String gameDesc() {
-		return "Tic-Tac-Toe ";
+		return "Tic-Tac-Toe";
 	}
 
 	@Override

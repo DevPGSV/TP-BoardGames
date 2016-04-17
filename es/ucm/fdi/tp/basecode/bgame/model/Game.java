@@ -186,14 +186,14 @@ public class Game implements Observable<GameObserver> {
 
 		// check that number of players is OK
 		if (pieces.size() < rules.minPlayers() || pieces.size() > rules.maxPlayers()) {
-			notifyError(new IllegalArgumentException("Too many or too few players: " + pieces.size()));
+			notifyError(new GameError("Too many or too few players: " + pieces.size()));
 		}
 
 		// check for duplicate player names
 		Set<Piece> tmpPieces = new HashSet<Piece>();
 		for (Piece p : pieces) {
 			if (p == null || !tmpPieces.add(p)) {
-				notifyError(new IllegalArgumentException("Multiple or invalid piece '" + p + "'"));
+				notifyError(new GameError("Multiple or invalid piece '" + p + "'"));
 			}
 		}
 
@@ -206,7 +206,8 @@ public class Game implements Observable<GameObserver> {
 		this.turn = rules.initialPlayer(board, pieces); // set the initial
 														// player
 		this.state = State.InPlay; // mark the game as started
-		notifyGameStart(); // notify all observers that the game has started.
+		notifyGameStart(null); // notify all observers that the game has
+								// started.
 	}
 
 	/**
@@ -423,18 +424,24 @@ public class Game implements Observable<GameObserver> {
 	}
 
 	/**
-	 * Notifies the observers that the game has started.
+	 * Notifies the observers that the game has started. If the parameter
+	 * {@code observer} is {@code null} it notifies all observers, otherwise it
+	 * notifies only the the one passed as parameter.
 	 * 
 	 * <p>
-	 * Notifica a los observadores que el juego ha comenzado.
+	 * Notifica a los observadores que el juego ha comenzado. En el caso que el
+	 * paramertro {@code observer} sea {@code null} notificamos a todos los
+	 * observadores, en caso contartio notificamos solo a {@code observer}.
+	 * 
+	 * @param o
 	 */
-	private void notifyGameStart() {
-		for (GameObserver o : observers) {
-			o.onGameStart(roBoard, rules.gameDesc(), roPieces, turn); // we pass
-																		// a
-																		// read
-																		// only
-																		// board/pieces
+	private void notifyGameStart(GameObserver observer) {
+		if (observer == null) {
+			for (GameObserver o : observers) {
+				o.onGameStart(roBoard, rules.gameDesc(), roPieces, turn);
+			}
+		} else {
+			observer.onGameStart(roBoard, rules.gameDesc(), roPieces, turn);
 		}
 	}
 
@@ -551,7 +558,7 @@ public class Game implements Observable<GameObserver> {
 	public void addObserver(GameObserver o) {
 		observers.add(o);
 		if (state != State.Starting) { // i
-			notifyGameStart();
+			notifyGameStart(o);
 		}
 	}
 

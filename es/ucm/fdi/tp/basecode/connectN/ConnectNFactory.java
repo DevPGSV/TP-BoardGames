@@ -1,9 +1,10 @@
-package es.ucm.fdi.tp.basecode.connectN;
+package es.ucm.fdi.tp.basecode.connectn;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import es.ucm.fdi.tp.basecode.bgame.control.AIPlayer;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsolePlayer;
 import es.ucm.fdi.tp.basecode.bgame.control.Controller;
 import es.ucm.fdi.tp.basecode.bgame.control.DummyAIPlayer;
@@ -29,7 +30,11 @@ import es.ucm.fdi.tp.basecode.bgame.views.GenericConsoleView;
  */
 public class ConnectNFactory implements GameFactory {
 
-	private int dim;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected int dim;
 
 	public ConnectNFactory() {
 		this(5);
@@ -62,7 +67,11 @@ public class ConnectNFactory implements GameFactory {
 
 	@Override
 	public Player createAIPlayer(AIAlgorithm alg) {
-		return new DummyAIPlayer(createRandomPlayer(), 1000);
+		if ( alg != null ) {
+			return new AIPlayer(alg);
+		} else {
+			return new DummyAIPlayer(createRandomPlayer(), 1000);
+		}
 	}
 
 	/**

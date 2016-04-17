@@ -42,5 +42,5 @@ public interface AIAlgorithm {
 	 *         <p>
 	 *         (Mejor) movimiento calculado por el algoritmo.
 	 */
-	public GameMove getMove(Piece p, Board board, List<Piece> pieces, GameRules rules);
+	GameMove getMove(Piece p, Board board, List<Piece> pieces, GameRules rules);
 }

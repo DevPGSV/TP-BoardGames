@@ -56,7 +56,7 @@ public class ConsolePlayerFromListOfMoves extends Player {
 		// check if the game support generating valid moves
 		if (availableMoves == null) {
 			throw new UnsupportedOperationException(
-					"The game '" + rules.gameDesc() + "' does not support the generation of vlaid moves.");
+					"The game '" + rules.gameDesc() + "' does not support the generation of valid moves.");
 		}
 
 		// print a text describing all available moves.

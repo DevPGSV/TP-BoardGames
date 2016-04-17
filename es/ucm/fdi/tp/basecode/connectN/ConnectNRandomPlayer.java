@@ -1,4 +1,4 @@
-package es.ucm.fdi.tp.basecode.connectN;
+package es.ucm.fdi.tp.basecode.connectn;
 
 import java.util.List;
 

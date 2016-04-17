@@ -22,7 +22,7 @@ import es.ucm.fdi.tp.basecode.bgame.model.AIAlgorithm;
 import es.ucm.fdi.tp.basecode.bgame.model.Game;
 import es.ucm.fdi.tp.basecode.bgame.model.GameError;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
-import es.ucm.fdi.tp.basecode.connectN.ConnectNFactory;
+import es.ucm.fdi.tp.basecode.connectn.ConnectNFactory;
 import es.ucm.fdi.tp.basecode.ttt.TicTacToeFactory;
 
 /**
@@ -30,14 +30,15 @@ import es.ucm.fdi.tp.basecode.ttt.TicTacToeFactory;
  * 
  * It uses the Commons-CLI library for parsing command-line arguments: the game
  * to play, the players list, etc.. More information is available at
- * {@link https://commons.apache.org/proper/commons-cli/}
+ * the <a href="https://commons.apache.org/proper/commons-cli/>commons-cli</a>
+ * page
  * 
  * <p>
  * Esta es la clase con el metodo main de inicio del programa. Se utiliza la
  * libreria Commons-CLI para leer argumentos de la linea de ordenes: el juego al
  * que se quiere jugar y la lista de jugadores. Puedes encontrar mas información
- * sobre esta libreria en {@link https://commons.apache.org/proper/commons-cli/}
- * .
+ * sobre esta libreria en la pagina de
+ * <a href="https://commons.apache.org/proper/commons-cli/>commons-cli</a>
  */
 public class Main {
 
@@ -47,7 +48,8 @@ public class Main {
 	 * Vistas disponibles.
 	 */
 	enum ViewInfo {
-		WINDOW("window", "Swing"), CONSOLE("console", "Console");
+		WINDOW("window", "Swing"),
+		CONSOLE("console", "Console");
 
 		private String id;
 		private String desc;
@@ -77,7 +79,9 @@ public class Main {
 	 * Juegos disponibles.
 	 */
 	enum GameInfo {
-		CONNECTN("cn", "ConnectN"), TicTacToe("ttt", "Tic-Tac-Toe"), AdvancedTicTacToe("attt", "Advanced Tic-Tac-Toe");
+		CONNECT_N("cn", "ConnectN"),
+		TIC_TAC_TOE("ttt", "Tic-Tac-Toe"),
+		ADVANCED_TIC_TAC_TOE("attt", "Advanced Tic-Tac-Toe");
 
 		private String id;
 		private String desc;
@@ -137,7 +141,7 @@ public class Main {
 	 * <p>
 	 * Juego por defecto.
 	 */
-	final private static GameInfo DEFAULT_GAME = GameInfo.CONNECTN;
+	final private static GameInfo DEFAULT_GAME = GameInfo.CONNECT_N;
 
 	/**
 	 * default view to use.
@@ -177,12 +181,12 @@ public class Main {
 	private static List<Piece> pieces;
 
 	/**
-	 * A list of players. The i-th player corresponds to the i-th piece in the
-	 * list {@link #pieces}. They correspond to what is provided in the -p
+	 * A list of player modes. The i-th mode corresponds to the i-th piece in
+	 * the list {@link #pieces}. They correspond to what is provided in the -p
 	 * option (or using the default value {@link #DEFAULT_PLAYERMODE}).
 	 * 
 	 * <p>
-	 * Lista de jugadores. El jugador i-esimo corresponde con la ficha i-esima
+	 * Lista de modos de juego. El modo i-esimo corresponde con la ficha i-esima
 	 * de la lista {@link #pieces}. Esta lista contiene lo que se proporciona en
 	 * la opcion -p (o el valor por defecto {@link #DEFAULT_PLAYERMODE}).
 	 */
@@ -265,7 +269,7 @@ public class Main {
 		cmdLineOptions.addOption(constructHelpOption()); // -h or --help
 		cmdLineOptions.addOption(constructGameOption()); // -g or --game
 		cmdLineOptions.addOption(constructViewOption()); // -v or --view
-		cmdLineOptions.addOption(constructMlutiViewOption()); // -m or
+		cmdLineOptions.addOption(constructMultiViewOption()); // -m or
 																// --multiviews
 		cmdLineOptions.addOption(constructPlayersOption()); // -p or --players
 		cmdLineOptions.addOption(constructDimensionOption()); // -d or --dim
@@ -276,7 +280,7 @@ public class Main {
 		try {
 			CommandLine line = parser.parse(cmdLineOptions, args);
 			parseHelpOption(line, cmdLineOptions);
-			parseDimOptionn(line);
+			parseDimensionOption(line);
 			parseGameOption(line);
 			parseViewOption(line);
 			parseMultiViewOption(line);
@@ -310,7 +314,7 @@ public class Main {
 	 * @return CLI {@link {@link Option} for the multiview option.
 	 */
 
-	private static Option constructMlutiViewOption() {
+	private static Option constructMultiViewOption() {
 		return new Option("m", "multiviews", false,
 				"Create a separate view for each player (valid only when using the " + ViewInfo.WINDOW + " view)");
 	}
@@ -485,13 +489,13 @@ public class Main {
 	/**
 	 * Parses the game option (-g or --game). It sets the value of
 	 * {@link #gameFactory} accordingly. Usually it requires that
-	 * {@link #parseDimOptionn(CommandLine)} has been called already to parse
+	 * {@link #parseDimensionOption(CommandLine)} has been called already to parse
 	 * the dimension option.
 	 * 
 	 * <p>
 	 * Extrae la opcion de juego (-g). Asigna el valor del atributo
 	 * {@link #gameFactory}. Normalmente necesita que se haya llamado antes a
-	 * {@link #parseDimOptionn(CommandLine)} para extraer la dimension del
+	 * {@link #parseDimensionOption(CommandLine)} para extraer la dimension del
 	 * tablero.
 	 * 
 	 * @param line
@@ -507,29 +511,29 @@ public class Main {
 		String gameVal = line.getOptionValue("g", DEFAULT_GAME.getId());
 		GameInfo selectedGame = null;
 
-		for( GameInfo g : GameInfo.values() ) {
-			if ( g.getId().equals(gameVal) ) {
+		for (GameInfo g : GameInfo.values()) {
+			if (g.getId().equals(gameVal)) {
 				selectedGame = g;
 				break;
 			}
 		}
 
-		if ( selectedGame == null ) {
+		if (selectedGame == null) {
 			throw new ParseException("Uknown game '" + gameVal + "'");
 		}
 	
 		switch ( selectedGame ) {
-		case AdvancedTicTacToe:
+		case ADVANCED_TIC_TAC_TOE:
 			gameFactory = new AdvancedTTTFactory();
 			break;
-		case CONNECTN:
+		case CONNECT_N:
 			if (dimRows != null && dimCols != null && dimRows == dimCols) {
 				gameFactory = new ConnectNFactory(dimRows);
 			} else {
 				gameFactory = new ConnectNFactory();
 			}
 			break;
-		case TicTacToe:
+		case TIC_TAC_TOE:
 			gameFactory = new TicTacToeFactory();
 			break;
 		default:
@@ -570,7 +574,7 @@ public class Main {
 	 *             <p>
 	 *             Si se proporciona un valor invalido.
 	 */
-	private static void parseDimOptionn(CommandLine line) throws ParseException {
+	private static void parseDimensionOption(CommandLine line) throws ParseException {
 		String dimVal = line.getOptionValue("d");
 		if (dimVal != null) {
 			try {

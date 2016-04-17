@@ -1,7 +1,9 @@
-package es.ucm.fdi.tp.basecode.connectN;
+package es.ucm.fdi.tp.basecode.connectn;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import es.ucm.fdi.tp.basecode.bgame.model.Board;
 import es.ucm.fdi.tp.basecode.bgame.model.FiniteRectBoard;
@@ -41,7 +43,7 @@ public class ConnectNRules implements GameRules {
 	//
 	protected final Pair<State, Piece> gameInPlayResult = new Pair<State, Piece>(State.InPlay, null);
 
-	private int dim;
+	protected int dim;
 
 	public ConnectNRules(int dim) {
 		if (dim < 3) {
@@ -143,8 +145,22 @@ public class ConnectNRules implements GameRules {
 	}
 
 	@Override
-	public double evaluate(Board board, List<Piece> playersPieces, Piece turn) {
-		return 0;
+	public double evaluate(Board board, List<Piece> playersPieces, Piece turn, Piece p) {
+
+		int n = possibleWinLines(board, p); // win lines for p
+		int m = 0; // max of win lines of other players
+		double d = 2.0 * dim + 2.0; // the max win lines a player can have
+
+		for (Piece q : playersPieces) {
+			if (!p.equals(q)) {
+				int x = possibleWinLines(board, q);
+				if (x > m) {
+					m = x;
+				}
+			}
+		}
+
+		return (n / d) - (m / d);
 	}
 
 	@Override
@@ -159,6 +175,50 @@ public class ConnectNRules implements GameRules {
 			}
 		}
 		return moves;
+	}
+
+	/**
+	 * Compute the number of win-lines for p. A win-line is a row, column or a
+	 * diagonal that does not have a piece different from p.
+	 * 
+	 * @param board The game board.
+	 * @param p A piece whose win-lines we want to compute.
+	 * @return
+	 */
+	private int possibleWinLines(Board board, Piece p) {
+
+		Set<Integer> rows = new HashSet<>();
+		Set<Integer> cols = new HashSet<>();
+		Set<Integer> diag = new HashSet<>();
+
+		for (int i = 0; i < dim; i++) {
+			rows.add(i);
+			cols.add(i);
+		}
+
+		diag.add(1);
+		diag.add(2);
+
+		for (int i = 0; i < board.getRows() && (rows.size() > 0 || cols.size() > 0); i++) {
+			for (int j = 0; j < board.getCols() && (rows.size() > 0 || cols.size() > 0); j++) {
+				Piece q = board.getPosition(i, j);
+				if (q != null && !q.equals(p)) {
+					rows.remove(i);
+					cols.remove(j);
+
+					if (i == j) {
+						diag.remove(1);
+					}
+
+					if (i + j == dim - 1) {
+						diag.remove(2);
+					}
+				}
+
+			}
+		}
+
+		return rows.size() + cols.size() + diag.size();
 	}
 
 }
