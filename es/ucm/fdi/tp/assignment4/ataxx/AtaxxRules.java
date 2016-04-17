@@ -271,7 +271,7 @@ public class AtaxxRules implements GameRules {
 	}
 
 	@Override
-	public double evaluate(Board board, List<Piece> pieces, Piece turn) {
+	public double evaluate(Board board, List<Piece> pieces, Piece turn, Piece p) {
 	    /*
 	    Map<Piece, Integer> count = countPieces(board, pieces);
         State state = State.Draw;
